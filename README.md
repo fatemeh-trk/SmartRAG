@@ -32,15 +32,17 @@ TechHive is an intelligent document assistant that uses **RAG (Retrieval-Augment
 
 1. Clone the repository
 bash
-git clone https://github.com/YOUR_USERNAME/TechHive.git
+git clone https://github.com/fatemeh-trk/SmartRAG.git
 
 
 2. Install dependencies
 bash
 pip install -r requirements.txt
+
 3. Download LLM model
 bash
 ollama pull phi3:mini
+
 4. Run the app
 bash
 cd TechHive
