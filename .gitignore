@@ -1,0 +1,13 @@
+chroma_db/
+cache_models/
+__pycache__/
+*.pyc
+Modelfile
+.streamlit/
+.env
+.venv
+env/
+.vscode/
+.idea/
+*.gguf
+*.safetensors

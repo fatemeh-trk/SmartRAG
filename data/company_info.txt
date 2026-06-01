@@ -1,0 +1,34 @@
+DaneshAfzar Company Information:
+
+Company Name: DaneshAfzar
+Year Founded: 2016 (1395 Persian calendar)
+CEO: Engineer Ahmadi
+Number of Employees: 45
+Headquarters: Tehran, Valiasr Street, opposite Mellat Park, No. 123
+Branches: Tehran (Headquarters), Isfahan, Mashhad
+
+Business Areas:
+- Artificial Intelligence Software Development
+- Mobile Applications (Android & iOS)
+- Content Management Systems (CMS)
+- Enterprise Cloud Solutions
+
+Working Hours:
+Saturday to Wednesday: 9:00 AM to 5:00 PM
+Thursday: 9:00 AM to 1:00 PM
+Friday: Closed
+
+Contact:
+Phone: +98-21-12345678
+Email: info@daneshafzar.ir
+Website: www.daneshafzar.ir
+
+Company Culture:
+DaneshAfzar values innovation, teamwork, and continuous learning. 
+The company provides annual training budgets for all employees.
+
+Benefits:
+- 24 days of annual leave
+- Health insurance
+- Flexible working hours (upon manager approval)
+- Remote work option (2 days per week)
