@@ -11,3 +11,4 @@ env/
 .idea/
 *.gguf
 *.safetensors
+.DS_Store
