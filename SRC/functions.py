@@ -96,3 +96,21 @@ def search(query, embedder, collection_new, top_k=7):
 
     return results['documents'][0]
     
+
+
+def build_conversation_context(messages, max_history=7):
+    
+    if len(messages) <= 1:
+        return ""
+    
+    context = "Previous conversation:\n"
+    recent = messages[-max_history*2:]
+    
+    for i in range(0, len(recent)-1, 2):
+        if i+1 < len(recent):
+            user_msg = recent[i]["content"]
+            assistant_msg = recent[i+1]["content"]
+            context += f"- User asked: \"{user_msg}\"\n"
+            context += f"- Assistant answered: \"{assistant_msg[:100]}...\"\n"
+    
+    return context

@@ -53,19 +53,19 @@ SmartRAG is a production-ready **Retrieval-Augmented Generation (RAG)** system t
 git clone https://github.com/fatemeh-trk/SmartRAG.git
 cd SmartRAG
 2. Create virtual environment (recommended)
-```bash
+
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 3. Install dependencies
-```bash
+
 pip install -r requirements.txt
 4. Download LLM model
-```bash
+
 ollama pull phi3:mini
 # Or for better accuracy:
 ollama pull gemma2:2b
 5. Run the application
-```bash
+
 # Using main.py (recommended)
 python -m SRC.main
 

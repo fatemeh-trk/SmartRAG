@@ -2,7 +2,7 @@ import streamlit as st
 from functions import chunking , read_uploaded_file , load_embedder,data_base , add_to_db,search
 import ollama
 import chromadb
-from functions import search, add_to_db, read_uploaded_file
+from functions import search, add_to_db, read_uploaded_file,build_conversation_context
 import time
 
 def run_ui(collection_new, embedder):
@@ -14,7 +14,8 @@ def run_ui(collection_new, embedder):
 
 
 
-    st.sidebar.success("✅ دیتابیس هوشمند آماده است")  
+    st.sidebar.success("✅ دیتابیس هوشمند آماده است")
+    
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -27,7 +28,7 @@ def run_ui(collection_new, embedder):
     
     with st.sidebar:
         st.header("📂 افزودن دانش جدید")
-    
+        st.sidebar.info(f"🧠 ربات آخرین 7 سوال را به خاطر می‌آورد")
         uploaded_file = st.file_uploader(
             "فایل خود را آپلود کنید (PDF, DOCX, TXT)",
             type=["pdf", "docx", "txt"],
@@ -158,40 +159,47 @@ def run_ui(collection_new, embedder):
             
                 context = "\n\n---\n\n".join(relevant_contexts)
             
-            
+
+                # ساخت زمینه مکالمه (بدون سوال فعلی)
+                conv_context = build_conversation_context(st.session_state.messages[:-1])
+
                 with st.expander("📚 متن‌های مرتبط پیدا شده"):
                     st.caption(context)
-            
-            
+
                 response = ollama.chat(
                     model='phi3',
                     messages=[
-                        {
-                            'role': 'system',
-                            'content': f"""you are an assistant analyze the document
-they gave you and do your best to answer questions right based on the document.
+                    {
+                        'role': 'system',
+                        'content': f"""You are a helpful assistant.
 
-**CRITICAL RULES:**
-1. ONLY answer based on the document below. 
-2. If the exact answer is NOT in the document, say exactly: "I don't have that information in my knowledge base."
-3. Do NOT use your general knowledge. Do NOT make up information.
-4. Answer in ENGLISH only.
-5. Keep answers short (1-2 sentences).
+                        ## CONVERSATION HISTORY:
+                        {conv_context}
 
-**DOCUMENT:**
-{context}
+                        ## INFORMATION FROM UPLOADED FILES:
+                        {context}
 
-**QUESTION:** {prompt}
+                        ## CURRENT QUESTION:
+                        {prompt}
 
-**YOUR ANSWER (only from document):"""
-                        },
-                        {'role': 'user', 'content': prompt}
-                    ],
-                    options={
-                        'temperature': 0.0,
-                        'num_predict': 128,
-                    }
+## RULES:
+1. Answer based on the uploaded files first.
+2. If information not in files, use conversation history.
+3. If not in either, say "I don't have that information."
+4. Answer in ENGLISH, short and direct.
+5. Do NOT repeat previous answers."""
+                },
+                {
+                    'role': 'user',
+                    'content': prompt
+                }
+                ],
+                options={
+                    'temperature': 0.0,
+                    'num_predict': 128,
+                }
                 )
-            
-                st.markdown(response['message']['content'])
-                st.session_state.messages.append({"role": "assistant", "content": response['message']['content']})    
+                answer = response['message']['content']
+                st.markdown(answer)    
+                    
+            st.session_state.messages.append({"role": "assistant", "content": answer})
