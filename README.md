@@ -44,6 +44,23 @@ SmartRAG is a production-ready **Retrieval-Augmented Generation (RAG)** system t
 - **Git** (optional, for cloning)
 
 ---
+## Project Progress
+
+### Completed
+
+- [x] PDF Upload
+- [x] Text Chunking
+- [x] Embedding Generation
+- [x] ChromaDB Integration
+- [x] Persistent ChromaDB Storage
+
+### In Progress
+
+- [ ] Metadata
+- [ ] Citation
+- [ ] Streaming Response
+- [ ] Hybrid Search
+- [ ] Chat Memory
 
 ## 🚀 Quick Start
 
