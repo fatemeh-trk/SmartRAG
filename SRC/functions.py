@@ -5,6 +5,7 @@ import tempfile
 import streamlit as st
 import ollama
 import chromadb
+import pandas as pd
 from sentence_transformers import SentenceTransformer
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
@@ -78,7 +79,28 @@ def data_base():
         collection_new = client.create_collection(name="company_docs_v2")
        
     return collection_new
-  
+
+
+def inspect_db(collection_new):
+    data = collection_new.get()
+    total_docs = len(data["ids"])
+    rows =[]
+    for i in range(total_docs):
+        doc_id = data["ids"][i]
+        document = data["documents"][i]
+        preview = ( document[:80] + "..." if len(document)>80 else document)
+        characters = len(document)
+        rows.append({ "ID" : doc_id,
+                  "Preview" : preview,
+                  "Characters" : characters
+                  })
+    df = pd.DataFrame(rows)
+    return df
+                
+            
+
+def build_metadata():
+
 
 
 def add_to_db(text,collection_new,embedder):

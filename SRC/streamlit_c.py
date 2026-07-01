@@ -2,8 +2,9 @@ import streamlit as st
 from functions import chunking , read_uploaded_file , load_embedder,data_base , add_to_db,search
 import ollama
 import chromadb
-from functions import search, add_to_db, read_uploaded_file,build_conversation_context
+from functions import search, add_to_db, read_uploaded_file,build_conversation_context,inspect_db
 import time
+
 
 def run_ui(collection_new, embedder):
 
@@ -39,6 +40,7 @@ def run_ui(collection_new, embedder):
             with st.status("📥 در حال پردازش فایل..."):
                 file_text = read_uploaded_file(uploaded_file)
                 num_chunks = add_to_db(file_text, collection_new, embedder)
+                inspect_db(collection_new)
                 st.session_state.processed_files.add(uploaded_file.name)
             st.success(f"✅ فایل '{uploaded_file.name}' پردازش شد!")
             st.info(f"📊 {num_chunks} قطعه به دانش اضافه شد")
