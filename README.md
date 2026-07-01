@@ -15,13 +15,12 @@ SmartRAG is a production-ready **Retrieval-Augmented Generation (RAG)** system t
 
 ### ✨ Features
 
-- 🔍 **Semantic search** in documents (PDF, DOCX, TXT)
-- 🤖 **Local LLM** support (Phi-3)
-- 📚 **Vector database** with ChromaDB
-- 🌐 **Multilingual** ( English)
-- 🗑️ **Document management** (add/delete chunks)
-- 🖥️ **Beautiful UI** with Streamlit
-- 🔐 **Privacy-first** (100% local execution)
+- 📄 PDF Upload
+- 🧠 Local RAG Pipeline
+- 💾 Persistent ChromaDB Storage
+- 🔍 Database Inspector
+- 📊 Pandas Debug Table
+- 🤖 Phi-3 Mini GGUF
 
 ### 🛠️ Built With
 

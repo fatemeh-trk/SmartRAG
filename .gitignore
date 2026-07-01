@@ -12,3 +12,4 @@ env/
 *.gguf
 *.safetensors
 .DS_Store
+database/chroma/
