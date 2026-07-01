@@ -28,6 +28,15 @@ def run_ui(collection_new, embedder):
         st.session_state.current_file = None
     
     with st.sidebar:
+
+        show_debug = st.checkbox("🔍 نمایش Database Inspector")
+
+        if show_debug:
+            df = inspect_db(collection_new)
+            st.dataframe(df, use_container_width=True)
+
+
+        
         st.header("📂 افزودن دانش جدید")
         st.sidebar.info(f"🧠 ربات آخرین 7 سوال را به خاطر می‌آورد")
         uploaded_file = st.file_uploader(
@@ -35,12 +44,14 @@ def run_ui(collection_new, embedder):
             type=["pdf", "docx", "txt"],
             key="file_uploader_unique"
         )
+        
+        
     
         if uploaded_file is not None and uploaded_file.name not in st.session_state.processed_files:
             with st.status("📥 در حال پردازش فایل..."):
                 file_text = read_uploaded_file(uploaded_file)
                 num_chunks = add_to_db(file_text, collection_new, embedder)
-                inspect_db(collection_new)
+                
                 st.session_state.processed_files.add(uploaded_file.name)
             st.success(f"✅ فایل '{uploaded_file.name}' پردازش شد!")
             st.info(f"📊 {num_chunks} قطعه به دانش اضافه شد")
