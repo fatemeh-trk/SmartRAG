@@ -62,11 +62,18 @@ def load_embedder():
 @st.cache_resource
 def data_base():
 
-    client = chromadb.Client()
+    db_path = Path("database/chroma")
+
+    db_path.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    client = chromadb.PersistentClient(path=str(db_path))
   
     try:
         collection_new = client.get_collection(name="company_docs_v2")
-    except:
+    except Exception:
    
         collection_new = client.create_collection(name="company_docs_v2")
        
