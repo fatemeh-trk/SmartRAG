@@ -21,6 +21,10 @@ SmartRAG is a production-ready **Retrieval-Augmented Generation (RAG)** system t
 - 🔍 Database Inspector
 - 📊 Pandas Debug Table
 - 🤖 Phi-3 Mini GGUF
+- Added Metadata support for each chunk
+- Added Database Inspector
+- Display file name, file id, chunk index and upload time
+- Improved database debugging
 
 ### 🛠️ Built With
 

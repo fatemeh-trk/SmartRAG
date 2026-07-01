@@ -1,5 +1,5 @@
 import streamlit as st
-from functions import chunking , read_uploaded_file , load_embedder,data_base , add_to_db,search
+from functions import chunking , load_embedder,data_base 
 import ollama
 import chromadb
 from functions import search, add_to_db, read_uploaded_file,build_conversation_context,inspect_db
@@ -50,7 +50,7 @@ def run_ui(collection_new, embedder):
         if uploaded_file is not None and uploaded_file.name not in st.session_state.processed_files:
             with st.status("📥 در حال پردازش فایل..."):
                 file_text = read_uploaded_file(uploaded_file)
-                num_chunks = add_to_db(file_text, collection_new, embedder)
+                num_chunks = add_to_db(file_text, collection_new, embedder,uploaded_file.name)
                 
                 st.session_state.processed_files.add(uploaded_file.name)
             st.success(f"✅ فایل '{uploaded_file.name}' پردازش شد!")

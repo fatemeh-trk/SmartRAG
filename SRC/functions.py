@@ -8,7 +8,8 @@ import chromadb
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-
+import uuid
+from datetime import datetime
 
 
 def chunking(text):
@@ -90,30 +91,57 @@ def inspect_db(collection_new):
         document = data["documents"][i]
         preview = ( document[:80] + "..." if len(document)>80 else document)
         characters = len(document)
+        metadata = data["metadatas"][i]
         rows.append({ "ID" : doc_id,
                   "Preview" : preview,
-                  "Characters" : characters
+                  "Characters" : characters,
+                  "File" : metadata["file_name"],
+                  "Chunk": metadata["chunk_index"],
+                  "Upload Time": metadata["upload_time"],
+                  "File ID": metadata["file_id"]
+
                   })
     df = pd.DataFrame(rows)
     return df
                 
             
 
+def metadata_builder(file_name,num_chunks):
+    file_id = str(uuid.uuid4())
+    metadata_list = []
+    upload_time = datetime.now().isoformat()
+    
+    for i in range(num_chunks):
+        chunk_index = i
+        metadata_list.append({
+                 "file_id" : file_id,
+                 "upload_time" : upload_time,
+                 "file_name" :file_name,
+                 "chunk_index": chunk_index
+                 
+            })
+
+    return metadata_list
+        
+        
+        
+    
 
 
-
-
-def add_to_db(text,collection_new,embedder):
+def add_to_db(text,collection_new,embedder,file_name):
     print("🔴 تابع add_to_db اجرا شد!")
     chunks = chunking(text)
     embeddings = embedder.encode(chunks)
-
+    metadatas = metadata_builder(file_name, len(chunks))
     current_docs_count = collection_new.count()
     for i,(chunk,emb) in enumerate(zip(chunks,embeddings)):
         collection_new.add(
             ids=[f"doc_{current_docs_count+i}"],
             embeddings = [emb.tolist()],
-            documents=[chunk])
+            documents=[chunk],
+            metadatas = [metadatas[i]]
+            )
+    
     return len(chunks)
 
 def search(query, embedder, collection_new, top_k=7):
