@@ -125,9 +125,51 @@ def metadata_builder(file_name,num_chunks):
         
         
         
+def get_files_info(collection_new):
+    data = collection_new.get()
+    metadatas = data["metadatas"]
+    files = {}
+    for metadata in metadatas:
+        file_id = metadata["file_id"]
+        file_name = metadata["file_name"]
+        if file_id not in files:
+            files[file_id]= {
+                "file_name" : file_name,
+                "upload_time" :metadata["upload_time"],
+                "chunk_count" : 1}
+        else:
+            files[file_id]["chunk_count"] += 1
+    return files    
+
+def files_info_to_dataframe(files):
+    rows =[]
+    for file_id , file_info in files.items():
+        rows.append({
+            "ID" : file_id,
+            "File name" : file_info["file_name"],
+            "Chunk count": file_info["chunk_count"],
+            "Upload Time": file_info["upload_time"],
+            
+            })
+        
+    df = pd.DataFrame(rows)
+    return df
+    
+
+def delete_file(collection_new,file_id):
+    try:
+        collection_new.delete(where={"file_id":file_id})
+        return True
+
+
+    except Exception as e:
+        return False
+        
     
 
 
+
+    
 def add_to_db(text,collection_new,embedder,file_name):
     print("🔴 تابع add_to_db اجرا شد!")
     chunks = chunking(text)

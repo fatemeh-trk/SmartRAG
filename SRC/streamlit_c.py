@@ -1,9 +1,10 @@
 import streamlit as st
-from functions import chunking , load_embedder,data_base 
+from functions import chunking , load_embedder,data_base ,get_files_info,files_info_to_dataframe
 import ollama
 import chromadb
-from functions import search, add_to_db, read_uploaded_file,build_conversation_context,inspect_db
+from functions import search, add_to_db, read_uploaded_file,build_conversation_context,inspect_db,delete_file
 import time
+
 
 
 def run_ui(collection_new, embedder):
@@ -32,8 +33,39 @@ def run_ui(collection_new, embedder):
         show_debug = st.checkbox("🔍 نمایش Database Inspector")
 
         if show_debug:
-            df = inspect_db(collection_new)
+            #df = inspect_db(collection_new)
+            #st.dataframe(df, use_container_width=True)
+            files = get_files_info(collection_new)
+            df = files_info_to_dataframe(files)
             st.dataframe(df, use_container_width=True)
+            file_names = []
+            for file_id , file_info in files.items():
+                file_names.append(file_info["file_name"])
+                
+            selected_file = st.radio(
+                "📄 فایل مورد نظر را انتخاب کنید:",
+                file_names
+            )
+
+            selected_file_id = None
+            for file_id,file_info in files.items():
+                if file_info["file_name"] == selected_file :
+                    selected_file_id = file_id
+            
+
+            file_deletion_result = None
+            if st.button("حذف فايل"):
+                file_deletion_result = delete_file(collection_new , selected_file_id)
+                if file_deletion_result :
+                
+                    st.success("فايل با موفقيت حذف شد")
+                    
+                    st.rerun()
+                
+                else:
+                    st.error("حذف فايل با مشکل موجه شد")
+                
+            
 
 
         
