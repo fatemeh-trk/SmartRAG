@@ -1,164 +1,192 @@
-# 🧠 SmartRAG - Intelligent Document Assistant
+# 📚 TechHive
 
-**RAG-based document Q&A system with local LLM (Ollama + ChromaDB + Streamlit)**
+A local AI-powered document management and Retrieval-Augmented Generation (RAG) system built with **Python**, **Streamlit**, **Sentence Transformers**, and **ChromaDB**.
 
-[![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://python.org)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.42-red.svg)](https://streamlit.io)
-[![Ollama](https://img.shields.io/badge/Ollama-0.4-green.svg)](https://ollama.com)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+The project allows users to upload documents, split them into semantic chunks, generate vector embeddings, store them in ChromaDB, manage uploaded files, inspect generated chunks, and delete files or selected chunks through an interactive interface.
 
 ---
 
-## 📖 About The Project
+# ✨ Features
 
-SmartRAG is a production-ready **Retrieval-Augmented Generation (RAG)** system that answers questions from your company documents. It runs **100% locally** on your laptop - no API costs, no data leaving your computer.
+## Document Management
 
-### ✨ Features
-
-- 📄 PDF Upload
-- 🧠 Local RAG Pipeline
-- 💾 Persistent ChromaDB Storage
-- 🔍 Database Inspector
-- 📊 Pandas Debug Table
-- 🤖 Phi-3 Mini GGUF
-- Added Metadata support for each chunk
-- Added Database Inspector
-- Display file name, file id, chunk index and upload time
-- Improved database debugging
-
-### 🛠️ Built With
-
-| Technology | Purpose |
-|------------|---------|
-| **Streamlit** | Web UI |
-| **Ollama** | Local LLM |
-| **ChromaDB** | Vector Database |
-| **Sentence Transformers** | Embeddings |
-| **LangChain** | Text splitting |
-| **PyPDF2 / python-docx** | Document parsing |
+- Upload supported documents
+- Automatic document chunking
+- Generate embeddings using Sentence Transformers
+- Store chunks inside ChromaDB
 
 ---
 
-## 📋 Prerequisites
+## File Management
 
-- **Python 3.12+**
-- **Ollama** installed ([download](https://ollama.com))
-- **8GB+ RAM** (16GB recommended)
-- **Git** (optional, for cloning)
+- Display uploaded files
+- Show file metadata
+- Delete uploaded files
+- Automatically remove all chunks belonging to deleted files
 
 ---
-## Project Progress
 
-### Completed
+## Chunk Management
 
-- [x] PDF Upload
-- [x] Text Chunking
-- [x] Embedding Generation
-- [x] ChromaDB Integration
-- [x] Persistent ChromaDB Storage
+- Display all chunks of a selected document
+- Show:
+  - Chunk Index
+  - Preview
+  - Text Length
+- Interactive chunk selection using Streamlit DataEditor
+- Multi-select chunk deletion
+- Automatic database refresh after deletion
 
-### In Progress
+---
 
-- [ ] Metadata
-- [ ] Citation
-- [ ] Streaming Response
-- [ ] Hybrid Search
-- [ ] Chat Memory
+# 🏗️ Project Architecture
 
-## 🚀 Quick Start
+```
+                Upload Document
+                       │
+                       ▼
+                Document Loader
+                       │
+                       ▼
+                 Text Chunking
+                       │
+                       ▼
+               Embedding Generator
+                       │
+                       ▼
+                  ChromaDB
+                       │
+      ┌────────────────┴───────────────┐
+      │                                │
+      ▼                                ▼
+ File Management                Chunk Management
+```
 
-### 1. Clone the repository
+---
 
-```bash
-git clone https://github.com/fatemeh-trk/SmartRAG.git
-cd SmartRAG
-2. Create virtual environment (recommended)
+# 📂 Project Structure
 
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-3. Install dependencies
+```
+SRC/
+│
+├── main.py                # Application entry point
+├── streamlit_c.py         # User Interface (Streamlit)
+├── functions.py           # Business logic
+├── database.py            # Database utilities (if applicable)
+├── ...
+```
 
-pip install -r requirements.txt
-4. Download LLM model
+---
 
-ollama pull phi3:mini
-# Or for better accuracy:
-ollama pull gemma2:2b
-5. Run the application
+# 🧠 Technologies
 
-# Using main.py (recommended)
-python -m SRC.main
+- Python
+- Streamlit
+- ChromaDB
+- Sentence Transformers
+- Pandas
 
-# Or directly with Streamlit
-streamlit run SRC/main.py
+---
 
-##🎯How It Works
-text
-User Question → Embedding → Vector Search → Relevant Chunks → LLM → Answer
-Upload your documents (PDF, DOCX, TXT)
+# ⚙️ Current Workflow
 
-1.Chunking splits text into 250-character pieces
+```
+Upload File
+      │
+      ▼
+Chunking
+      │
+      ▼
+Embedding
+      │
+      ▼
+Store in ChromaDB
+      │
+      ▼
+View Files
+      │
+      ▼
+View Chunks
+      │
+      ▼
+Select Chunks
+      │
+      ▼
+Delete Selected Chunks
+```
 
-2.Embedding converts chunks to vectors
+---
 
-3.Search finds semantically similar chunks
+# 🚀 Current Capabilities
 
-4.LLM generates answers based on retrieved context
+✅ Upload documents
 
-##📊 Usage Examples
-Question	Expected Answer
-Who is the CEO?	Engineer Ahmadi
-When was the company founded?	2016
-What are the working hours?	Saturday to Wednesday: 9 AM to 5 PM
-Where is the headquarters?	Tehran, Valiasr Street
-##🔧 Configuration
-Change LLM model
-In src/streamlit.py, change:
+✅ Generate semantic chunks
 
-python
-model='gemma2:2b'  # instead of 'phi3'
+✅ Generate embeddings
 
-Adjust chunk size
-In src/functions.py, modify:
+✅ Store vectors in ChromaDB
 
-python
-chunk_size=250,  # characters per chunk
-chunk_overlap=50,  # overlap between chunks
-##🗑️ Database Management
-The sidebar provides:
+✅ Display uploaded files
 
-Delete by count - Remove last N chunks
+✅ Delete uploaded files
 
-Delete by ID - Remove specific chunks
+✅ Display chunks
 
-Delete all - Clear entire database
+✅ Multi-select chunk deletion
 
-🤝 Contributing
-Fork the repository
+---
 
-Create your feature branch (git checkout -b feature/AmazingFeature)
+# 🛣️ Roadmap
 
-Commit changes (git commit -m 'Add AmazingFeature')
+## Completed
 
-Push to branch (git push origin feature/AmazingFeature)
+- [x] File upload
+- [x] Chunk generation
+- [x] Embedding generation
+- [x] ChromaDB integration
+- [x] File deletion
+- [x] Chunk viewer
+- [x] Multi-select chunk deletion
 
-Open a Pull Request
+## Planned
 
-##📞 Contact
-GitHub
-Project Link: https://github.com/fatemeh-trk/SmartRAG
+- [ ] User authentication
+- [ ] Admin/User roles
+- [ ] Chunk editing
+- [ ] Search inside documents
+- [ ] Retrieval-Augmented Generation (RAG)
+- [ ] LLM integration
+- [ ] Conversation history
+- [ ] Export results
+- [ ] Docker support
 
-##🙏 Acknowledgments
-Streamlit for amazing UI framework
+---
 
-Ollama for local LLM runtime
+# 💡 Design Principles
 
-ChromaDB for vector database
+The project follows several software engineering principles:
 
-Sentence Transformers for embeddings
+- Separation of Concerns (SoC)
+- Single Responsibility Principle (SRP)
+- Modular Architecture
+- Reusable Functions
+- Clean UI / Business Logic separation
 
-##📄 License
-Distributed under the MIT License. See LICENSE for more information.
+---
 
-##⭐ Star History
-If you find this project useful, please give it a star! ⭐
+# 📌 Status
+
+Current Version:
+
+**v0.4**
+
+Latest feature:
+
+> Multi-select Chunk Management using Streamlit DataEditor.
+
+---
+
+# 📜 License
+
+This project is under development for learning purposes.

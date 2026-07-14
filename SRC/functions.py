@@ -167,9 +167,60 @@ def delete_file(collection_new,file_id):
         
     
 
+def get_file_chunks(collection_new,file_id):
+    try:
+        chunk_file = collection_new.get(
+            where={
+                "file_id":file_id})
+        return chunk_file
+
+    except Exception as e:
+        return None
 
 
-    
+def chunk_transformation(chunk_file):
+    chunks = []
+    ids = chunk_file["ids"]
+    txt = chunk_file["documents"]
+    metadata = chunk_file["metadatas"]
+    ziped_chunk_data = zip(ids,txt,metadata)
+    for chunk_id , doc , data in ziped_chunk_data:
+        chunks.append({
+            "chunk_id" : chunk_id ,
+            "chunk_index" : data["chunk_index"],
+            "text" : doc,
+            "text_length" : len(doc)
+            })
+    return chunks    
+        
+def chunks_to_df(chunks):
+    mapped_chunk = {}
+    rows = []
+    for chunk in chunks:
+        mapped_chunk[chunk["chunk_index"]] = chunk["chunk_id"]
+        
+        rows.append({
+            "chunk index" : chunk["chunk_index"],
+            "preview" : chunk["text"][:70],
+            "text length" : chunk["text_length"]
+            
+             })
+    df = pd.DataFrame(rows)
+    return df,mapped_chunk
+
+def delete_selected_chunks(collection_new,ids_to_delete):
+    try:
+        if ids_to_delete:
+            collection_new.delete(ids = ids_to_delete)
+            
+        return len(ids_to_delete)
+
+    except Exception as e:
+        return None
+
+
+
+        
 def add_to_db(text,collection_new,embedder,file_name):
     print("🔴 تابع add_to_db اجرا شد!")
     chunks = chunking(text)
