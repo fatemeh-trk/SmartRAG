@@ -1,5 +1,5 @@
 import streamlit as st
-from functions import chunking , load_embedder,data_base ,get_files_info,files_info_to_dataframe
+from functions import chunking , load_embedder,data_base ,get_files_info,files_info_to_dataframe,get_file_chunks,chunks_to_df,chunk_transformation
 import ollama
 import chromadb
 from functions import search, add_to_db, read_uploaded_file,build_conversation_context,inspect_db,delete_file
@@ -33,6 +33,7 @@ def run_ui(collection_new, embedder):
         show_debug = st.checkbox("🔍 نمایش Database Inspector")
 
         if show_debug:
+            
             #df = inspect_db(collection_new)
             #st.dataframe(df, use_container_width=True)
             files = get_files_info(collection_new)
@@ -51,8 +52,23 @@ def run_ui(collection_new, embedder):
             for file_id,file_info in files.items():
                 if file_info["file_name"] == selected_file :
                     selected_file_id = file_id
-            
-
+            if selected_file_id != None :
+                chunk_file = get_file_chunks(collection_new,selected_file_id)
+                tran_chunk = chunk_transformation(chunk_file)
+                chunk_df,mapped_chunk = chunks_to_df(tran_chunk)
+                chunk_df["select"] = False
+                edited_chunk_df = st.data_editor(chunk_df)
+                selected_chunks = edited_chunk_df[
+                    edited_chunk_df["select"]== True]
+                ids_to_delete = []
+                for index,row in selected_chunks.iterrows():
+                    chunk_index = row["chunk index"]
+                    chunk_id = mapped_chunk[chunk_index]
+                    ids_to_delete.append(chunk_id)
+                    
+                    
+            else:
+                st.write("no chunk")
             file_deletion_result = None
             if st.button("حذف فايل"):
                 file_deletion_result = delete_file(collection_new , selected_file_id)
