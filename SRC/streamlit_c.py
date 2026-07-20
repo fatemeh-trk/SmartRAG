@@ -2,14 +2,16 @@ import streamlit as st
 from functions import chunking , load_embedder,data_base ,get_files_info,files_info_to_dataframe,get_file_chunks,chunks_to_df,chunk_transformation
 import ollama
 import chromadb
-from functions import search, add_to_db, read_uploaded_file,build_conversation_context,inspect_db,delete_file
+from functions import search, add_to_db, read_uploaded_file,build_conversation_context,inspect_db,delete_file,delete_selected_chunks
 import time
 
 
 
 def run_ui(collection_new, embedder):
 
-
+    
+        
+        
     st.set_page_config(page_title="TechHive ",page_icon="🤖")
     st.title("TechHive (RAG version)")
     st.caption("smart search in company documents")
@@ -31,7 +33,9 @@ def run_ui(collection_new, embedder):
     with st.sidebar:
 
         show_debug = st.checkbox("🔍 نمایش Database Inspector")
-
+        if "success_message" in st.session_state:
+            st.success(st.session_state["success_message"])
+            del st.session_state["success_message"]
         if show_debug:
             
             #df = inspect_db(collection_new)
@@ -65,6 +69,25 @@ def run_ui(collection_new, embedder):
                     chunk_index = row["chunk index"]
                     chunk_id = mapped_chunk[chunk_index]
                     ids_to_delete.append(chunk_id)
+                chunk_deletion_result = None
+                if st.button("حذف چانک"):
+                    chunk_deletion_result = delete_selected_chunks(collection_new,ids_to_delete)
+                    if chunk_deletion_result > 0 :
+                
+                        st.session_state["success_message"] = f"{chunk_deletion_result}چانک حذف شد "
+                        st.rerun()
+                        
+
+                        
+                    elif chunk_deletion_result == 0:
+                        st.warning("چانک انتخاب نشده")
+                    else:
+                        st.error(" حذف چانک با مشکل موجه شد")
+                
+            
+                    
+                    
+                
                     
                     
             else:
