@@ -2,8 +2,25 @@ import streamlit as st
 from functions import chunking , load_embedder,data_base ,get_files_info,files_info_to_dataframe,get_file_chunks,chunks_to_df,chunk_transformation
 import ollama
 import chromadb
-from functions import search, add_to_db, read_uploaded_file,build_conversation_context,inspect_db,delete_file,delete_selected_chunks
+from functions import search, add_to_db, read_uploaded_file,inspect_db,delete_file,delete_selected_chunks
+from context_builder import build_context
 import time
+
+def group_sources(sources):
+    grouped_src ={}
+    
+    for src in sources:
+       file_name = src["file_name"]
+       chunk_index = src["chunk_index"]
+       
+       if file_name not in grouped_src:
+
+            grouped_src[file_name] = []
+            
+       grouped_src[file_name].append(chunk_index)
+
+    return grouped_src
+
 
 
 
@@ -238,14 +255,16 @@ def run_ui(collection_new, embedder):
             with st.spinner("🔍 جستجو در اطلاعات شرکت..."):
             
            
-                relevant_contexts = search(prompt, embedder, collection_new, top_k=7)
+                results = search(prompt, embedder, collection_new, top_k=7)
+                
+                distances = results["distances"][0]
+                
+                st.write(distances)
             
+                context,sources = build_context(results)
             
-                context = "\n\n---\n\n".join(relevant_contexts)
-            
-
-                # ساخت زمینه مکالمه (بدون سوال فعلی)
-                conv_context = build_conversation_context(st.session_state.messages[:-1])
+                grouped = group_sources(sources)
+                
 
                 with st.expander("📚 متن‌های مرتبط پیدا شده"):
                     st.caption(context)
@@ -255,23 +274,28 @@ def run_ui(collection_new, embedder):
                     messages=[
                     {
                         'role': 'system',
-                        'content': f"""You are a helpful assistant.
+                        'content': f"""You are an AI assistant specialized in answering questions based ONLY on the retrieved document context.
 
-                        ## CONVERSATION HISTORY:
-                        {conv_context}
+                        ##Rules:
 
-                        ## INFORMATION FROM UPLOADED FILES:
+                        1. Answer only using facts explicitly supported by the retrieved context.
+
+                        2. If the retrieved context does not explicitly contain the answer, respond exactly:
+
+                        "I don't have that information."
+
+                        3. Never use external knowledge or assumptions.
+
+                        4. If the answer spans multiple retrieved chunks, combine the relevant information into one coherent answer.
+
+                        5. Keep the answer concise and accurate.
+
+
+                        ## Retrieved Context:
+
                         {context}
 
-                        ## CURRENT QUESTION:
-                        {prompt}
-
-## RULES:
-1. Answer based on the uploaded files first.
-2. If information not in files, use conversation history.
-3. If not in either, say "I don't have that information."
-4. Answer in ENGLISH, short and direct.
-5. Do NOT repeat previous answers."""
+                        """
                 },
                 {
                     'role': 'user',
@@ -284,6 +308,13 @@ def run_ui(collection_new, embedder):
                 }
                 )
                 answer = response['message']['content']
-                st.markdown(answer)    
+                st.markdown(answer)
+                st.markdown("### 📄  Sources")
+                for file_name , chunks in grouped.items():
+                    st.markdown(file_name)
+                    chunk_str = ", ".join([str(c) for c in sorted(set(chunks))])
                     
-            st.session_state.messages.append({"role": "assistant", "content": answer})
+                    st.markdown(f"chunk(s):{chunk_str}")
+                    
+                    
+            
