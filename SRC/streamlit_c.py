@@ -2,7 +2,7 @@ import streamlit as st
 from functions import chunking , load_embedder,data_base ,get_files_info,files_info_to_dataframe,get_file_chunks,chunks_to_df,chunk_transformation
 import ollama
 import chromadb
-from functions import search, add_to_db, read_uploaded_file,inspect_db,delete_file,delete_selected_chunks
+from functions import search, add_to_db, read_uploaded_file,inspect_db,delete_file,delete_selected_chunks,process_retrieval_results
 from context_builder import build_context
 import time
 
@@ -258,6 +258,11 @@ def run_ui(collection_new, embedder):
                 results = search(prompt, embedder, collection_new, top_k=7)
                 
                 distances = results["distances"][0]
+               
+                RETRIEVAL_THRESHOLD = 21
+                results = process_retrieval_results(results, RETRIEVAL_THRESHOLD)
+
+
                 
                 st.write(distances)
             
