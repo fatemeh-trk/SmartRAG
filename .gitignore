@@ -13,3 +13,7 @@ env/
 *.safetensors
 .DS_Store
 database/chroma/
+hf_cache/
+storage/chroma/
+*.py[cod]
+echo artifacts/chunks.json>>.gitignore

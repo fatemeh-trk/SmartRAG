@@ -1,10 +1,30 @@
 import streamlit as st
-from functions import chunking , load_embedder,data_base ,get_files_info,files_info_to_dataframe,get_file_chunks,chunks_to_df,chunk_transformation
 import ollama
-import chromadb
-from functions import search, add_to_db, read_uploaded_file,inspect_db,delete_file,delete_selected_chunks,process_retrieval_results
-from context_builder import build_context
 import time
+
+
+from ingestion.loaders import read_uploaded_file
+
+
+
+from storage.chroma import data_base, inspect_db
+
+from services.document_service import (
+    get_files_info,
+    files_info_to_dataframe,
+    get_file_chunks,
+    chunks_to_df,
+    chunk_transformation,
+    add_to_db,
+    delete_file,
+    delete_selected_chunks,
+)
+
+from retrieval.search import search, process_retrieval_results
+from retrieval.reranker import rerank
+
+from generation.context_builder import build_context, is_context_empty
+from generation.prompts import get_system_prompt
 
 def group_sources(sources):
     grouped_src ={}
@@ -24,7 +44,7 @@ def group_sources(sources):
 
 
 
-def run_ui(collection_new, embedder):
+def run_ui(collection_new, embedder,reranker):
 
     
         
@@ -55,18 +75,20 @@ def run_ui(collection_new, embedder):
             del st.session_state["success_message"]
         if show_debug:
             
+            
             #df = inspect_db(collection_new)
             #st.dataframe(df, use_container_width=True)
             files = get_files_info(collection_new)
             df = files_info_to_dataframe(files)
-            st.dataframe(df, use_container_width=True)
+            st.dataframe(df, width="stretch")
             file_names = []
             for file_id , file_info in files.items():
                 file_names.append(file_info["file_name"])
                 
             selected_file = st.radio(
                 "📄 فایل مورد نظر را انتخاب کنید:",
-                file_names
+                file_names,
+                index=None
             )
 
             selected_file_id = None
@@ -126,7 +148,7 @@ def run_ui(collection_new, embedder):
 
         
         st.header("📂 افزودن دانش جدید")
-        st.sidebar.info(f"🧠 ربات آخرین 7 سوال را به خاطر می‌آورد")
+        
         uploaded_file = st.file_uploader(
             "فایل خود را آپلود کنید (PDF, DOCX, TXT)",
             type=["pdf", "docx", "txt"],
@@ -255,71 +277,74 @@ def run_ui(collection_new, embedder):
             with st.spinner("🔍 جستجو در اطلاعات شرکت..."):
             
            
-                results = search(prompt, embedder, collection_new, top_k=7)
+                results = search(prompt, embedder, collection_new, top_k=20)
                 
-                distances = results["distances"][0]
-               
+                
+                NO_INFORMATION_MESSAGE = "I don't have that information."
+
+# RETRIEVAL_THRESHOLD tuned empirically via retrieval_evaluation.csv
+# Chroma default distance metric = L2 (squared euclidean), unnormalized embeddings
+# from 'paraphrase-multilingual-MiniLM-L12-v2'.
+# Observed: relevant matches cluster ~7-20, irrelevant/negative queries cluster ~24-34.
+# Re-validate this threshold if the embedding model changes.
                 RETRIEVAL_THRESHOLD = 21
-                results = process_retrieval_results(results, RETRIEVAL_THRESHOLD)
-
 
                 
-                st.write(distances)
+                results = process_retrieval_results(results, RETRIEVAL_THRESHOLD)
+                results = rerank(
+                    prompt,
+                    results,
+                    reranker,
+                    top_n=7
+                        )
+                
+                
+                print("AFTER RERANK COUNT:", len(results["documents"][0]))
+
+                for i, meta in enumerate(results["metadatas"][0]):
+                    print(
+                        "FINAL:",
+                         i,
+                         meta["file_name"],
+                         meta["chunk_index"]
+                            )
             
                 context,sources = build_context(results)
             
                 grouped = group_sources(sources)
                 
+                
 
-                with st.expander("📚 متن‌های مرتبط پیدا شده"):
-                    st.caption(context)
-
-                response = ollama.chat(
-                    model='phi3',
-                    messages=[
+                
+                if not is_context_empty(context):
+                    with st.expander("📚 متن‌های مرتبط پیدا شده"):
+                        st.caption(context)
+                    response = ollama.chat(
+                        model='phi3',
+                        messages=[
+                        {
+                            'role': 'system',
+                            'content': get_system_prompt(context)
+                    },
                     {
-                        'role': 'system',
-                        'content': f"""You are an AI assistant specialized in answering questions based ONLY on the retrieved document context.
-
-                        ##Rules:
-
-                        1. Answer only using facts explicitly supported by the retrieved context.
-
-                        2. If the retrieved context does not explicitly contain the answer, respond exactly:
-
-                        "I don't have that information."
-
-                        3. Never use external knowledge or assumptions.
-
-                        4. If the answer spans multiple retrieved chunks, combine the relevant information into one coherent answer.
-
-                        5. Keep the answer concise and accurate.
-
-
-                        ## Retrieved Context:
-
-                        {context}
-
-                        """
-                },
-                {
-                    'role': 'user',
-                    'content': prompt
-                }
-                ],
-                options={
-                    'temperature': 0.0,
-                    'num_predict': 128,
-                }
-                )
-                answer = response['message']['content']
-                st.markdown(answer)
-                st.markdown("### 📄  Sources")
-                for file_name , chunks in grouped.items():
-                    st.markdown(file_name)
-                    chunk_str = ", ".join([str(c) for c in sorted(set(chunks))])
+                        'role': 'user',
+                        'content': prompt
+                    }
+                    ],
+                    options={
+                        'temperature': 0.0,
+                        'num_predict': 128,
+                    }
+                    )
+                    answer = response['message']['content']
+                    st.markdown(answer)
+                    st.markdown("### 📄  Sources")
+                    for file_name , chunks in grouped.items():
+                        st.markdown(file_name)
+                        chunk_str = ", ".join([str(c) for c in sorted(set(chunks))])
                     
-                    st.markdown(f"chunk(s):{chunk_str}")
-                    
+                        st.markdown(f"chunk(s):{chunk_str}")
+                else:
+                    st.markdown(NO_INFORMATION_MESSAGE)
                     
             
