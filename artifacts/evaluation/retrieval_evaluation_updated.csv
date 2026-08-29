@@ -1,0 +1,25 @@
+﻿ID,Type,Question,Expected_chunks,Best_Distance,Retrieved_Chunks,Relevant_Retrieval,Top1_Hit,Top3_Hit,Top5_Hit,Precision@7,Recall@7,Answer_Correct,Notes
+A1,Single,What is this report about?,"21-25,29-40",22.94274521,23/583/607/726/761/797/852,No,No,No,No,0.14,0.06,Partially,Introduction chunks were not retrieved. Mostly middle/end of document.
+A2,Single,Who published this report?,4,20.12971878,4/23/607/726/761/797/852,Yes,Yes,Yes,Yes,0.14,1.0,Partially,"Retrieval found the correct chunk, but the LLM inferred ""published"" from copyright notice instead of quoting explicit statement."
+A3,Single,What is the purpose of this report?,29-30,18.87384605,23/378/583/607/726/761/797,Partially,,,,,,Partially,"Best semantic match so far, but no chunk explicitly states the report purpose."
+A4,Single,What are World Models?,436-444,,,,,,,,,,
+A5,Single,What is lattice-based cryptography?,493-496,,,,,,,,,,
+A6,Single,What is fully homomorphic encryption?,498-500,,,,,,,,,,
+A7,Single,"What is the 'harvest-now, decrypt-later' threat?",490-492,7.660830498,490/491/509/530/616/848/879,Yes,Yes,Yes,Yes,0.43,1.0,Yes,Retriever:9.5/10 Generator:9.5/10
+A8,Single,Which organization finalized post-quantum cryptography standards in 2024?,502-503,7.386528492,502/503/505/856/858/868/872,Yes,Yes,Yes,Yes,0.43,1.0,Yes,Successful Retrieval + Successful Generation
+B1,Multi,Explain World Models and describe their main applications.,"441-452,463-468",,,,,,,,,,
+B2,Multi,What are the benefits and risks of World Models?,463-479,,,,,,,,,,
+B3,Multi,How does lattice-based cryptography protect against quantum computers?,493-496,,,,,,,,,,
+B4,Multi,Explain how fully homomorphic encryption was used in healthcare.,498-501,10.3932476,493/498/499/510/853/855/874,Yes,Yes,Yes,Yes,0.57,1.0,No,Retriever:9/10 Generator:2/10
+B5,Multi,What recommendations does the report make for adopting emerging technologies?,"536-540,611-633",10.02089596,9/23/580/593/594/596/611,No,No,No,No,0.0,0.0,No,Relevant adoption section was not retrieved.
+B6,Multi,Summarize the section about quantum-safe migration.,"502-509,536-540",11.48228168,402/405/506/538/539/863/877,Partially,No,Yes,Yes,0.71,1.0,Partially,No hallucination but incomplete summary.
+B7,Multi,Which organizations are involved in post-quantum migration and what are their timelines?,502-508,12.12285423,506/508/538/539/863/868/872,Yes,Yes,Yes,Yes,0.71,1.0,Yes,
+B8,Multi,Explain the transformation map of lattice-based cryptography.,510-516,9.25109291,493/510/514/536/872/874/876,Yes,Yes,Yes,Yes,0.57,1.0,Partially,"Retrieved correct chunks, but the report itself does not explain the map in detail."
+C1,Negative,Who is the president of the United States?,Not Found,,,,,,,,,,
+C2,Negative,What is the capital of Japan?,Not Found,,,,,,,,,,
+C3,Negative,How do I cook pasta?,Not Found,,,,,,,,,,
+C4,Negative,What is Newton's second law?,Not Found,,,,,,,,,,
+C5,Negative,Who won the FIFA World Cup 2022?,Not Found,24.15792847,25/663/670/685/725/753/812,No,No,No,No,0.0,,Yes,"Answer correctly refused, but retrieval returned unrelated chunks."
+C6,Negative,What is Python programming language?,Not Found,33.65841293,232/236/439/466/629/644/645,No,No,No,No,0.0,,Yes,Correct refusal with noisy retrieval.
+C7,Negative,How do I install Windows 11?,Not Found,29.60387802,9/12/580/662/723/845/851,No,No,No,No,0.0,,Yes,Correct refusal with noisy retrieval.
+C8,Negative,What is the tallest mountain in the world?,Not Found,26.91334724,105/445/642/670/724/725/750,No,No,No,No,0.0,,No,Retrieval failed and the LLM answered from its own knowledge.

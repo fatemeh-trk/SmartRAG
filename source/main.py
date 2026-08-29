@@ -1,13 +1,10 @@
 import streamlit as st
-from functions import (
-    chunking,
-    read_uploaded_file,
-    load_embedder,
-    data_base,
-    add_to_db,
-    search
-)
-from streamlit_c import run_ui
+
+from models.embeddings import load_embedder
+from models.reranker import load_reranker
+from storage.chroma import data_base
+from ui.streamlit_app import run_ui
+
 
 def main():
    
@@ -24,10 +21,11 @@ def main():
     
     
     embedder = load_embedder()
+    reranker = load_reranker()
     collection_new = data_base()
     
     
-    run_ui(collection_new, embedder)
+    run_ui(collection_new, embedder,reranker)
 
 if __name__ == "__main__":
     main()

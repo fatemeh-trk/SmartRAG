@@ -29,3 +29,6 @@ def build_context(results):
      
     else:
         return "",[]
+
+def is_context_empty(context):
+    return context.strip() == ""
